@@ -17,9 +17,25 @@ namespace WebAPIv1
             _petDictionary.Remove(id);
         }
 
+        //TO DO: REFACTOR TO RETURN EMPTY PET
         public Pet? GetPetById(Guid id)
         {
             return _petDictionary.TryGetValue(id, out Pet? value) ? value : null;
+        }
+
+        public List<Pet> GetPetByStatus(string status)
+        {
+            //SELECT * FROM PETS WHERE STATUS = 'status'
+            List<Pet> petArray = new List<Pet>();
+            foreach(var pet in _petDictionary)
+            {
+                if(string.Equals(pet.Value.Status, status))
+                {
+                    petArray.Add(pet.Value);
+                }
+            }
+
+            return petArray;
         }
 
         public void PatchPet(Guid id, JsonPatchDocument<Pet> patchPet)

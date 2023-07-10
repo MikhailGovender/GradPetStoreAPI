@@ -12,5 +12,6 @@ namespace WebAPIv1
         void UpsertPet(Pet upsertPet);
         void PatchPet(Guid id, JsonPatchDocument<Pet> patchPet);
         void DeletePet(Guid id);
+        List<Pet> GetPetByStatus(string status);
     }
 }

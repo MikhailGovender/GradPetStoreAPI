@@ -1,6 +1,7 @@
 using AutoMapper;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
@@ -27,7 +28,7 @@ namespace WebAPIv1.Controllers
                 request.Name,
                 request.AnimalType,
                 request.Breed,
-                request.Status,
+                request.Status.ToUpper(),
                 request.Age,
                 request.ImageURLS);
 
@@ -74,6 +75,15 @@ namespace WebAPIv1.Controllers
             return NotFound();
         }
 
+        [HttpGet("~/Pets/{status}")]
+        public IActionResult GetPetsByStatus(string status)
+        {
+            //Retrieve Pet By Guid
+            List<Pet> retrievedPet = _petService.GetPetByStatus(status.ToUpper());
+
+            return Ok(retrievedPet);
+        }
+
         [HttpPatch(Name = "{id:guid}")]
         public IActionResult PatchPet(Guid id, JsonPatchDocument<Pet> request)
         {
@@ -89,7 +99,7 @@ namespace WebAPIv1.Controllers
                 request.Name,
                 request.AnimalType,
                 request.Breed,
-                request.Status,
+                request.Status.ToUpper(),
                 request.Age,
                 request.ImageURLS);
 
