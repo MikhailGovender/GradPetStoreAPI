@@ -6,7 +6,6 @@ namespace WebAPIv1
         string AnimalType,
         string Breed,
         string Status,
-        int Age,
-        string[] ImageURLS
+        int Age
         );
 }

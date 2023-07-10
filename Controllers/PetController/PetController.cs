@@ -29,8 +29,8 @@ namespace WebAPIv1.Controllers
                 request.AnimalType,
                 request.Breed,
                 request.Status.ToUpper(),
-                request.Age,
-                request.ImageURLS);
+                request.Age
+                );
 
             //TO DO : Insert Into DB
             _petService.CreatePet(newPet);
@@ -42,8 +42,7 @@ namespace WebAPIv1.Controllers
                 newPet.AnimalType,
                 newPet.Breed,
                 newPet.Status,
-                newPet.Age,
-                newPet.ImageURLS);
+                newPet.Age);
 
 
             return CreatedAtAction(
@@ -66,8 +65,7 @@ namespace WebAPIv1.Controllers
                     retrievedPet.AnimalType,
                     retrievedPet.Breed,
                     retrievedPet.Status,
-                    retrievedPet.Age,
-                    retrievedPet.ImageURLS);
+                    retrievedPet.Age);
 
                 return Ok(response);
             }
@@ -100,8 +98,8 @@ namespace WebAPIv1.Controllers
                 request.AnimalType,
                 request.Breed,
                 request.Status.ToUpper(),
-                request.Age,
-                request.ImageURLS);
+                request.Age
+                );
 
             _petService.UpsertPet(UpsertPet);
 
@@ -115,5 +113,43 @@ namespace WebAPIv1.Controllers
             return NoContent();
         }
 
+        [HttpPost("/Image")]
+        public IActionResult UploadImage(Guid id, IFormFile file)
+        {
+            Pet? retrievedPet = _petService.GetPetById(id);
+            string uniqueFileName = (id.ToString() + "-" + file.FileName.Split('.')[0] + "-" + DateTime.Now.ToString("yyyy-MM-dd")).ToString()+ "." + file.FileName.Split('.')[1];
+
+            if (retrievedPet is not null)
+            {
+                if (ValidateFile(file))
+                {
+                    try
+                    {
+                        var tempUploadsPath = Path.Combine(Directory.GetCurrentDirectory(), "TempUploads\\Pets");
+                        var exactPath = Path.Combine(Directory.GetCurrentDirectory(), "TempUploads\\Pets", uniqueFileName);
+                        using (var stream = new FileStream(exactPath, FileMode.Create))
+                        {
+                             file.CopyTo(stream);
+                        }
+                    }catch (Exception)
+                    {
+                        return Problem();
+                    }
+                }
+            }
+            return Ok(uniqueFileName);
+        }
+
+        private string[] permittedExtensions = { ".png", ".jpg" };
+        private bool ValidateFile(IFormFile file)
+        {
+            string ext = Path.GetExtension(file.FileName).ToLowerInvariant();
+            if (!string.IsNullOrEmpty(ext) || permittedExtensions.Contains(ext))
+            {
+                return true;
+            }
+
+            return false;
+        }
 
     }}

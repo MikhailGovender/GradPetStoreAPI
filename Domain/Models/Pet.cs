@@ -11,9 +11,8 @@ namespace WebAPIv1
         public string Breed { get; set; }
         public string Status { get; set; }
         public int Age { get; set; }
-        public string[] ImageURLS { get; set; }
 
-        public Pet(Guid id, string name, string animalType, string breed, string status, int age, string[] imageURLS)
+        public Pet(Guid id, string name, string animalType, string breed, string status, int age)
         {
             //Enforve invariants
             Id = id;
@@ -22,7 +21,6 @@ namespace WebAPIv1
             Breed = breed;
             Status = status;
             Age = age;
-            ImageURLS = imageURLS;
         }
 
     }
