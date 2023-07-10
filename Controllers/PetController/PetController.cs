@@ -52,10 +52,10 @@ namespace WebAPIv1.Controllers
         }        
         
         [HttpGet(Name = "{id:guid}")]
-        public IActionResult GetPet(Guid id)
+        public async Task<IActionResult> GetPet(Guid id)
         {
             //Retrieve Pet By Guid
-            Pet? retrievedPet = _petService.GetPetById(id);
+            Pet? retrievedPet = await _petService.GetPetById(id);
             if (retrievedPet is not null)
             {
                 //Map to Response Obj
@@ -74,18 +74,24 @@ namespace WebAPIv1.Controllers
         }
 
         [HttpGet("~/Pets/{status}")]
-        public IActionResult GetPetsByStatus(string status)
+        public async Task<IActionResult> GetPetsByStatus(string status)
         {
             //Retrieve Pet By Guid
-            List<Pet> retrievedPet = _petService.GetPetByStatus(status.ToUpper());
+            List<Pet> retrievedPet = await _petService.GetPetByStatus(status.ToUpper());
 
             return Ok(retrievedPet);
         }
 
         [HttpPatch(Name = "{id:guid}")]
-        public IActionResult PatchPet(Guid id, JsonPatchDocument<Pet> request)
+        public async Task<IActionResult> PatchPet(Guid id, JsonPatchDocument<Pet> request)
         {
-            _petService.PatchPet(id, request);
+            Pet PetDB = await _petService.GetPetById(id);
+            if(PetDB  is null)
+            {
+                return NotFound();
+            }
+            request.ApplyTo(PetDB);
+            _petService.PatchPet(id, PetDB);
             return Ok(request);
         }
 
@@ -114,9 +120,9 @@ namespace WebAPIv1.Controllers
         }
 
         [HttpPost("/Image")]
-        public IActionResult UploadImage(Guid id, IFormFile file)
+        public async Task<IActionResult> UploadImage(Guid id, IFormFile file)
         {
-            Pet? retrievedPet = _petService.GetPetById(id);
+            Pet? retrievedPet = await _petService.GetPetById(id);
             string uniqueFileName = (id.ToString() + "-" + file.FileName.Split('.')[0] + "-" + DateTime.Now.ToString("yyyy-MM-dd")).ToString()+ "." + file.FileName.Split('.')[1];
 
             if (retrievedPet is not null)
@@ -140,6 +146,7 @@ namespace WebAPIv1.Controllers
             return Ok(uniqueFileName);
         }
 
+        #region Functions
         private string[] permittedExtensions = { ".png", ".jpg" };
         private bool ValidateFile(IFormFile file)
         {
@@ -151,5 +158,7 @@ namespace WebAPIv1.Controllers
 
             return false;
         }
+        #endregion
 
-    }}
+    }
+}

@@ -1,4 +1,6 @@
+using Dapper;
 using Microsoft.AspNetCore.JsonPatch;
+using System.Data.SqlClient;
 using System.Reflection.Metadata.Ecma335;
 
 namespace WebAPIv1
@@ -6,54 +8,58 @@ namespace WebAPIv1
     public class PetService : IPetService
     {
         //Temporary In-Memory Store
-        private static readonly Dictionary<Guid, Pet> _petDictionary = new();
-        public void CreatePet(Pet PetDBO)
+        //private static readonly Dictionary<Guid, Pet> _petDictionary = new();
+        private readonly IConfiguration _config;
+        public PetService(IConfiguration config)
         {
-            _petDictionary.Add(PetDBO.Id, PetDBO);
+            _config = config;
         }
 
-        public void DeletePet(Guid id)
+        public async void CreatePet(Pet PetDBO)
         {
-            _petDictionary.Remove(id);
+            using var connection = new SqlConnection(_config.GetConnectionString("DefaultConnection"));
+            await connection.ExecuteAsync(
+                "INSERT INTO Pets(Id, Name, AnimalType, Breed, Status, Age)" +
+                "VALUES (@Id, @Name, @AnimalType, @Breed, @Status, @Age)", PetDBO);
+            //_petDictionary.Add(PetDBO.Id, PetDBO);
+        }
+
+        public async void DeletePet(Guid id)
+        {
+            using var connection = new SqlConnection(_config.GetConnectionString("DefaultConnection"));
+            await connection.ExecuteAsync("DELETE FROM Pets Where Id = @Id", new { Id = id });
+            //_petDictionary.Remove(id);
         }
 
         //TO DO: REFACTOR TO RETURN EMPTY PET
-        public Pet? GetPetById(Guid id)
+        public async Task<Pet> GetPetById(Guid id)
         {
-            return _petDictionary.TryGetValue(id, out Pet? value) ? value : null;
+            using var connection = new SqlConnection(_config.GetConnectionString("DefaultConnection"));
+            return await connection.QueryFirstAsync<Pet>("SELECT * FROM Pets WHERE Id = @Id", new {Id = id});
+           //_petDictionary.TryGetValue(id, out Pet? value) ? value : null;
         }
 
-        public List<Pet> GetPetByStatus(string status)
+        public async Task<List<Pet>> GetPetByStatus(string status)
         {
-            //SELECT * FROM PETS WHERE STATUS = 'status'
-            List<Pet> petArray = new List<Pet>();
-            foreach(var pet in _petDictionary)
-            {
-                if(string.Equals(pet.Value.Status, status))
-                {
-                    petArray.Add(pet.Value);
-                }
-            }
-
-            return petArray;
+            using var connection = new SqlConnection(_config.GetConnectionString("DefaultConnection"));
+            return (await connection.QueryAsync<Pet>("SELECT * FROM Pets WHERE Status = @Status", new { Status = status })).ToList();
         }
 
-        public void PatchPet(Guid id, JsonPatchDocument<Pet> patchPet)
+        public async void PatchPet(Guid id, Pet patchPet)
         {
-            Pet? retrievedPet = GetPetById(id);
+            using var connection = new SqlConnection(_config.GetConnectionString("DefaultConnection"));
+            await connection.ExecuteAsync("UPDATE Pets" +
+                " SET Name = @Name, AnimalType = @AnimalTypr, Breed = @Breed, Status = @Status, Age = @Age  WHERE Id = @Id", patchPet);
+        }
+
+        public async void UpsertPet(Pet upsertPet)
+        {
+            Pet? retrievedPet = await GetPetById(upsertPet.Id);
             if(retrievedPet is not null)
             {
-                patchPet.ApplyTo(retrievedPet);
-                _petDictionary[id] = retrievedPet;
-            }
-        }
-
-        public void UpsertPet(Pet upsertPet)
-        {
-            Pet? retrievedPet = GetPetById(upsertPet.Id);
-            if(retrievedPet is not null)
-            {
-                _petDictionary[upsertPet.Id] = upsertPet;
+                using var connection = new SqlConnection(_config.GetConnectionString("DefaultConnection"));
+                await connection.ExecuteAsync("UPDATE Pets" +
+                    " SET Name = @Name, AnimalType = @AnimalTypr, Breed = @Breed, Status = @Status, Age = @Age  WHERE Id = @Id", upsertPet);
             }
             else
             {

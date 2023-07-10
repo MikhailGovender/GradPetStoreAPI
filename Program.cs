@@ -10,7 +10,8 @@ builder.Services.AddControllers()
 //Add Created Services Here
 builder.Services.AddScoped<IPetService, PetService>();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen()
+    .AddSwaggerGenNewtonsoftSupport();
 
 var app = builder.Build();
 

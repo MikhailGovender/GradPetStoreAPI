@@ -8,10 +8,10 @@ namespace WebAPIv1
 
         //Function: Insert Pet To DB
         void CreatePet(Pet PetDBO);
-        Pet? GetPetById(Guid id);
+        Task<Pet> GetPetById(Guid id);
         void UpsertPet(Pet upsertPet);
-        void PatchPet(Guid id, JsonPatchDocument<Pet> patchPet);
+        void PatchPet(Guid id, Pet patchPet);
         void DeletePet(Guid id);
-        List<Pet> GetPetByStatus(string status);
+        Task<List<Pet>> GetPetByStatus(string status);
     }
 }
