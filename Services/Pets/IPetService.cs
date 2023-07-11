@@ -13,5 +13,7 @@ namespace WebAPIv1
         void PatchPet(Guid id, Pet patchPet);
         void DeletePet(Guid id);
         Task<List<Pet>> GetPetByStatus(string status);
+        void UploadImage(Guid id, string uniqueFileName, string exactPath);
+        void UploadImage(Guid id, string uniqueFileName, byte[] filebytes);
     }
 }

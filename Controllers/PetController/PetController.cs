@@ -133,10 +133,20 @@ namespace WebAPIv1.Controllers
                     {
                         var tempUploadsPath = Path.Combine(Directory.GetCurrentDirectory(), "TempUploads\\Pets");
                         var exactPath = Path.Combine(Directory.GetCurrentDirectory(), "TempUploads\\Pets", uniqueFileName);
-                        using (var stream = new FileStream(exactPath, FileMode.Create))
+                        var filebytes = new byte[0];
+                        using(var memorystream = new MemoryStream())
                         {
-                             file.CopyTo(stream);
+                            await file.CopyToAsync(memorystream);
+                            filebytes = memorystream.ToArray();
                         }
+
+                        _petService.UploadImage(id, uniqueFileName, filebytes);
+                        //using (var stream = new FileStream(exactPath, FileMode.Create))
+                        //{
+                        //     await file.CopyToAsync(stream);
+                            
+                        //    _petService.UploadImage(id,uniqueFileName, exactPath);
+                        //}
                     }catch (Exception)
                     {
                         return Problem();

@@ -52,6 +52,17 @@ namespace WebAPIv1
                 " SET Name = @Name, AnimalType = @AnimalTypr, Breed = @Breed, Status = @Status, Age = @Age  WHERE Id = @Id", patchPet);
         }
 
+        public void UploadImage(Guid id, string uniqueFileName, string exactPath)
+        {
+            throw new NotImplementedException();
+        }
+
+        public async void UploadImage(Guid id, string uniqueFileName, byte[] filebytes)
+        {
+            using var connection = new SqlConnection(_config.GetConnectionString("DefaultConnection"));
+            await connection.ExecuteAsync("INSERT INTO PetImages VALUES (@Id, @FileName, @File)", new { Id = id, FileName = uniqueFileName, File = filebytes });
+        }
+
         public async void UpsertPet(Pet upsertPet)
         {
             Pet? retrievedPet = await GetPetById(upsertPet.Id);
