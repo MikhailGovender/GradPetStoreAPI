@@ -19,7 +19,6 @@
   <ItemGroup>
     <Folder Include="Controllers\PetController\" />
     <Folder Include="ServiceErrors\" />
-    <Folder Include="Services\Orders\" />
     <Folder Include="Services\Users\" />
     <Folder Include="Services\Pets\" />
     <Folder Include="TempUploads\Pets\" />

@@ -1,4 +1,5 @@
 using WebAPIv1;
+using WebAPIv1.Services.Orders;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,6 +10,7 @@ builder.Services.AddControllers()
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 //Add Created Services Here
 builder.Services.AddScoped<IPetService, PetService>();
+builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen()
     .AddSwaggerGenNewtonsoftSupport();
