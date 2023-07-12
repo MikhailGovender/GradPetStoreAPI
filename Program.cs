@@ -1,5 +1,6 @@
 using WebAPIv1;
 using WebAPIv1.Services.Orders;
+using WebAPIv1.Services.Users;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,6 +12,7 @@ builder.Services.AddControllers()
 //Add Created Services Here
 builder.Services.AddScoped<IPetService, PetService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
+builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen()
     .AddSwaggerGenNewtonsoftSupport();

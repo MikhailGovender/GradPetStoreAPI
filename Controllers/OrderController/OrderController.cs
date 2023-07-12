@@ -63,7 +63,7 @@ namespace WebAPIv1.Controllers.OrderController
 
             return NotFound();
         }        
-        [HttpGet(Name = "/Orders/{id:guid}")]
+        [HttpGet("~/Orders")]
         public async Task<IActionResult> GetOrders()
         {
             List<Order> allOrders = await _orderService.GetAllOrders();
